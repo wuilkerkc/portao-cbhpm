@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portão de Portes SBCP</title>
+<style>
+:root{--bg:#f7f7f5;--fg:#1a1a1a;--muted:#5f6368;--card:#fff;--line:#d9d9d4;--accent:#0b2545;--sel:#e8eef7}
+@media (prefers-color-scheme: dark){:root{--bg:#141516;--fg:#ececec;--muted:#a3a3a3;--card:#1e1f21;--line:#3a3b3e;--accent:#7fb3d9;--sel:#26303d}}
+body{background:var(--bg);color:var(--fg);font:15px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;margin:0;padding-block:24px;padding-inline:16px}
+.wrap{max-width:1100px;margin:0 auto}h1{font-size:1.5rem;margin:0 0 4px}h2{font-size:1.1rem;margin:26px 0 8px}
+.muted{color:var(--muted)}.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin:12px 0}
+.rodada{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;padding:10px 0;border-top:1px dashed var(--line)}
+.rodada:first-of-type{border-top:0}
+a.btn{background:var(--accent);color:#fff;text-decoration:none;border-radius:8px;padding:8px 14px;font-weight:600}
+.tabela{overflow-x:auto}table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:.92rem}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}th{background:var(--sel);position:sticky;top:0}
+td.num{text-align:center}.pill{display:inline-block;padding:1px 8px;border-radius:999px;background:var(--sel);font-weight:600}
+</style></head><body><div class="wrap">
+<h1>Portão de Portes — GT Codificação SBCP</h1>
+<p class="muted">Pontuação dos novos códigos CBHPM da Cirurgia Plástica pela sistemática de portes da AMB. Escolha a rodada aberta para pontuar; abaixo, a lista dos procedimentos já pontuados até o momento.</p>
+<div class="card"><h2 style="margin-top:0">Rodadas</h2><div id="rodadas"></div></div>
+<div class="card"><h2 style="margin-top:0">Procedimentos já pontuados</h2>
+<p class="muted small">Resultado consolidado das respostas recebidas (mediana dos pontos; porte, auxiliares, porte anestésico e custo operacional mais frequentes). Atualiza automaticamente a cada envio.</p>
+<div class="tabela"><table id="lista"><thead><tr><th>Lote / rodada</th><th>Procedimento</th><th>Revisores</th><th>Pontos (mediana; mín–máx)</th><th>Porte cirúrgico</th><th>Auxiliares</th><th>Porte anestésico</th><th>Custo operacional</th><th>Última resposta</th></tr></thead><tbody></tbody></table></div>
+<p id="vazio" class="muted" hidden>Nenhuma resposta recebida ainda.</p></div>
+<p class="muted" style="font-size:.85rem">Sociedade Brasileira de Cirurgia Plástica · Grupo de Trabalho de Codificação. Nenhum dado pessoal dos revisores é exibido nesta página.</p>
+</div>
+<script>
+const SB_URL="https://tlaarwlszyjygxatndko.supabase.co", SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRsYWFyd2xzenlqeWd4YXRuZGtvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0MTMyODEsImV4cCI6MjA4Njk4OTI4MX0.nRJzmgPXUlQBLLJGwgBonzHnOqeGoV-B6AWaS5FhcSI";
+const RODADAS=[{"titulo": "Lote 1 — rodada piloto (3 procedimentos)", "descricao": "Aspiração de tecido adiposo patológico · Lesão de coto de amputação · Curativo complexo pós-operatório", "prazo": "30/09/2026", "aberta": true, "url": "https://tlaarwlszyjygxatndko.supabase.co/storage/v1/object/public/portao/sbcp-2026-09/index.html"}];
+const r=document.getElementById('rodadas');
+RODADAS.forEach(x=>{ const d=document.createElement('div'); d.className='rodada';
+  d.innerHTML='<div><strong>'+x.titulo+'</strong><div class="muted">'+x.descricao+(x.prazo?' · prazo '+x.prazo:'')+'</div></div>'+(x.aberta?'<a class="btn" href="'+x.url+'">Pontuar</a>':'<span class="pill">encerrada</span>'); r.appendChild(d); });
+async function carregar(){
+  try{
+    const q=await fetch(SB_URL+'/rest/v1/portao_resultados?select=*&order=lote,terminologia',{headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY}});
+    const rows=await q.json(); const tb=document.querySelector('#lista tbody'); tb.innerHTML='';
+    if(!Array.isArray(rows)||!rows.length){ document.getElementById('vazio').hidden=false; return; }
+    rows.forEach(x=>{ const tr=document.createElement('tr'); const f=v=>(v==null||v==='')?'–':v;
+      tr.innerHTML='<td>'+f(x.lote)+'</td><td>'+f(x.terminologia)+'</td><td class="num">'+f(x.n_revisores)+'</td><td class="num">'+f(x.total_mediana)+' ('+f(x.total_min)+'–'+f(x.total_max)+')</td><td class="num"><span class="pill">'+f(x.porte_moda)+'</span></td><td>'+f(x.auxiliares)+'</td><td class="num">'+f(x.an_moda)+'</td><td>'+f(x.uco)+'</td><td>'+(x.ultima_resposta?new Date(x.ultima_resposta).toLocaleDateString('pt-BR'):'–')+'</td>';
+      tb.appendChild(tr); });
+  }catch(e){ document.getElementById('vazio').hidden=false; document.getElementById('vazio').textContent='Não foi possível carregar os resultados agora.'; }
+}
+carregar(); setInterval(carregar, 60000);
+</script></body></html>
