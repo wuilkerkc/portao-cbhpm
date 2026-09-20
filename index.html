@@ -25,7 +25,7 @@ td.num{text-align:center}.pill{display:inline-block;padding:1px 8px;border-radiu
 </div>
 <script>
 const SB_URL="https://tlaarwlszyjygxatndko.supabase.co", SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRsYWFyd2xzenlqeWd4YXRuZGtvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0MTMyODEsImV4cCI6MjA4Njk4OTI4MX0.nRJzmgPXUlQBLLJGwgBonzHnOqeGoV-B6AWaS5FhcSI";
-const RODADAS=[{"titulo": "Lote 1 — rodada piloto (3 procedimentos)", "descricao": "Aspiração de tecido adiposo patológico · Lesão de coto de amputação · Curativo complexo pós-operatório", "prazo": "30/09/2026", "aberta": true, "url": "https://tlaarwlszyjygxatndko.supabase.co/storage/v1/object/public/portao/sbcp-2026-09/index.html"}];
+const RODADAS=[{"titulo": "Lote 1 — rodada piloto (3 procedimentos)", "descricao": "Aspiração de tecido adiposo patológico · Lesão de coto de amputação · Curativo complexo pós-operatório", "prazo": "30/09/2026", "aberta": true, "url": "sbcp-2026-09/"}];
 const r=document.getElementById('rodadas');
 RODADAS.forEach(x=>{ const d=document.createElement('div'); d.className='rodada';
   d.innerHTML='<div><strong>'+x.titulo+'</strong><div class="muted">'+x.descricao+(x.prazo?' · prazo '+x.prazo:'')+'</div></div>'+(x.aberta?'<a class="btn" href="'+x.url+'">Pontuar</a>':'<span class="pill">encerrada</span>'); r.appendChild(d); });
