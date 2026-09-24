@@ -25,17 +25,17 @@ td.num{text-align:center}.pill{display:inline-block;padding:1px 8px;border-radiu
 </div>
 <script>
 const SB_URL="https://tlaarwlszyjygxatndko.supabase.co", SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRsYWFyd2xzenlqeWd4YXRuZGtvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0MTMyODEsImV4cCI6MjA4Njk4OTI4MX0.nRJzmgPXUlQBLLJGwgBonzHnOqeGoV-B6AWaS5FhcSI";
-const RODADAS=[{"titulo": "Lote 1 — rodada piloto (3 procedimentos)", "descricao": "Aspiração de tecido adiposo patológico · Lesão de coto de amputação · Curativo complexo pós-operatório", "prazo": "30/09/2026", "aberta": true, "url": "sbcp-2026-09/"}];
+const RODADAS=[{"titulo": "Lote 1 — validação (45 propostas)", "descricao": "Propostas 1 a 45 da aba Lote 1 · revisora: Dra. Katia Torres · salvar a cada proposta", "prazo": "", "aberta": true, "url": "sbcp-2026-09-lote1/"}, {"titulo": "Lote 1 — rodada piloto (3 procedimentos)", "descricao": "Aspiração de tecido adiposo patológico · Lesão de coto de amputação · Curativo complexo pós-operatório", "prazo": "30/09/2026", "aberta": false, "url": "sbcp-2026-09/"}];
 const r=document.getElementById('rodadas');
 RODADAS.forEach(x=>{ const d=document.createElement('div'); d.className='rodada';
   d.innerHTML='<div><strong>'+x.titulo+'</strong><div class="muted">'+x.descricao+(x.prazo?' · prazo '+x.prazo:'')+'</div></div>'+(x.aberta?'<a class="btn" href="'+x.url+'">Pontuar</a>':'<span class="pill">encerrada</span>'); r.appendChild(d); });
 async function carregar(){
   try{
-    const q=await fetch(SB_URL+'/rest/v1/portao_resultados?select=*&order=lote,terminologia',{headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY}});
+    const q=await fetch(SB_URL+'/rest/v1/portao_resultados?select=*&order=lote.desc,proposta.asc.nullsfirst,terminologia',{headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY}});
     const rows=await q.json(); const tb=document.querySelector('#lista tbody'); tb.innerHTML='';
     if(!Array.isArray(rows)||!rows.length){ document.getElementById('vazio').hidden=false; return; }
     rows.forEach(x=>{ const tr=document.createElement('tr'); const f=v=>(v==null||v==='')?'–':v;
-      tr.innerHTML='<td>'+f(x.lote)+'</td><td>'+f(x.terminologia)+'</td><td class="num">'+f(x.n_revisores)+'</td><td class="num">'+f(x.total_mediana)+' ('+f(x.total_min)+'–'+f(x.total_max)+')</td><td class="num"><span class="pill">'+f(x.porte_moda)+'</span></td><td>'+f(x.auxiliares)+'</td><td class="num">'+f(x.an_moda)+'</td><td>'+f(x.uco)+'</td><td>'+(x.ultima_resposta?new Date(x.ultima_resposta).toLocaleDateString('pt-BR'):'–')+'</td>';
+      tr.innerHTML='<td>'+f(x.lote)+'</td><td>'+(x.proposta?'<b>P'+x.proposta+'</b> · ':'')+f(x.terminologia)+'</td><td class="num">'+f(x.n_revisores)+'</td><td class="num">'+f(x.total_mediana)+' ('+f(x.total_min)+'–'+f(x.total_max)+')</td><td class="num"><span class="pill">'+f(x.porte_moda)+'</span></td><td>'+f(x.auxiliares)+'</td><td class="num">'+f(x.an_moda)+'</td><td>'+f(x.uco)+'</td><td>'+(x.ultima_resposta?new Date(x.ultima_resposta).toLocaleDateString('pt-BR'):'–')+'</td>';
       tb.appendChild(tr); });
   }catch(e){ document.getElementById('vazio').hidden=false; document.getElementById('vazio').textContent='Não foi possível carregar os resultados agora.'; }
 }
