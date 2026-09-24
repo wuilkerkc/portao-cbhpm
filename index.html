@@ -31,7 +31,7 @@ RODADAS.forEach(x=>{ const d=document.createElement('div'); d.className='rodada'
   d.innerHTML='<div><strong>'+x.titulo+'</strong><div class="muted">'+x.descricao+(x.prazo?' · prazo '+x.prazo:'')+'</div></div>'+(x.aberta?'<a class="btn" href="'+x.url+'">Pontuar</a>':'<span class="pill">encerrada</span>'); r.appendChild(d); });
 async function carregar(){
   try{
-    const q=await fetch(SB_URL+'/rest/v1/portao_resultados?select=*&order=lote.desc,proposta.asc.nullsfirst,terminologia',{headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY}});
+    const q=await fetch(SB_URL+'/rest/v1/portao_resultados?select=*&order=lote.asc,proposta.asc.nullsfirst,terminologia',{headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY}});
     const rows=await q.json(); const tb=document.querySelector('#lista tbody'); tb.innerHTML='';
     if(!Array.isArray(rows)||!rows.length){ document.getElementById('vazio').hidden=false; return; }
     rows.forEach(x=>{ const tr=document.createElement('tr'); const f=v=>(v==null||v==='')?'–':v;
