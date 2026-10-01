@@ -1,0 +1,23 @@
+# Mantém o banco Supabase do portão ativo: o plano gratuito pausa o projeto após dias sem acesso.
+name: Manter Supabase ativo
+
+on:
+  schedule:
+    - cron: "0 12 */2 * *"   # a cada 2 dias, 12h UTC (9h de Brasília)
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Consultar a view pública de resultados
+        env:
+          SB_URL: https://tlaarwlszyjygxatndko.supabase.co
+          # chave anon pública (a mesma usada nas páginas do portão)
+          SB_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRsYWFyd2xzenlqeWd4YXRuZGtvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0MTMyODEsImV4cCI6MjA4Njk4OTI4MX0.nRJzmgPXUlQBLLJGwgBonzHnOqeGoV-B6AWaS5FhcSI
+        run: |
+          code=$(curl -s -o resp.json -w '%{http_code}' --retry 3 --retry-delay 20 \
+            "$SB_URL/rest/v1/portao_resultados?select=lote&limit=1" \
+            -H "apikey: $SB_KEY" -H "Authorization: Bearer $SB_KEY")
+          echo "HTTP $code"; cat resp.json; echo
+          [ "$code" = "200" ] || { echo "::error::Supabase não respondeu (HTTP $code) — projeto pode estar pausado. Reativar no painel do Supabase."; exit 1; }
