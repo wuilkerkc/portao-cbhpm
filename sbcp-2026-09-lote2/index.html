@@ -4920,6 +4920,13 @@ const P2P={"14":"3A","15":"3B","16":"3C","17":"4A","18":"4B","19":"4C","20":"5A"
 const FAIXAS=[{"an":0,"de":"1A","ate":"2C"},{"an":1,"de":"3A","ate":"3B"},{"an":2,"de":"3C","ate":"4B"},{"an":3,"de":"4C","ate":"6A"},{"an":4,"de":"6B","ate":"7B"},{"an":5,"de":"7C","ate":"9A"},{"an":6,"de":"9B","ate":"10B"},{"an":7,"de":"10C","ate":"11C"},{"an":8,"de":"12A","ate":"14C"}];
 const ORDEM=["1A","1B","1C","2A","2B","2C","3A","3B","3C","4A","4B","4C","5A","5B","5C","6A","6B","6C","7A","7B","7C","8A","8B","8C","9A","9B","9C","10A","10B","10C","11A","11B","11C","12A","12B","12C","13A","13B","13C","14A","14B","14C"];
 function anDoPorte(p){ const i=ORDEM.indexOf(p); if(i<0) return null; for(const f of FAIXAS){ if(i>=ORDEM.indexOf(f.de)&&i<=ORDEM.indexOf(f.ate)) return f.an; } return null; }
+const REMAP=null;
+// Renumeração da planilha: migra uma única vez as marcações guardadas neste navegador (id antigo -> novo; null = proposta excluída).
+if(REMAP){ try{ const KV='portao_remap_'+LOTE; if(localStorage.getItem(KV)!==REMAP.versao){
+  const mv=o=>{ const r={}; Object.entries(o||{}).forEach(([k,v])=>{ const n=(k in REMAP.ids)?REMAP.ids[k]:k; if(n) r[n]=v; }); return r; };
+  const d=JSON.parse(localStorage.getItem(KEY)||'null'); if(d){ d.respostas=mv(d.respostas); localStorage.setItem(KEY, JSON.stringify(d)); }
+  const sv=JSON.parse(localStorage.getItem(KEYS)||'null'); if(sv) localStorage.setItem(KEYS, JSON.stringify(mv(sv)));
+  localStorage.setItem(KV, REMAP.versao); } }catch(e){} }
 let salvo={}; try{ salvo=JSON.parse(localStorage.getItem(KEYS)||'{}')||{}; }catch(e){}
 function gravarSalvo(){ try{ localStorage.setItem(KEYS, JSON.stringify(salvo)); }catch(e){} }
 
