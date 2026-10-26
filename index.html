@@ -15,7 +15,7 @@ th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-alig
 td.num{text-align:center}.pill{display:inline-block;padding:1px 8px;border-radius:999px;background:var(--sel);font-weight:600}
 </style></head><body><div class="wrap">
 <h1>Portão de Portes — GT Codificação SBCP</h1>
-<p class="muted">Pontuação dos novos códigos CBHPM da Cirurgia Plástica pela sistemática de portes da AMB. Escolha a rodada aberta para pontuar; abaixo, a lista dos procedimentos já pontuados até o momento.</p>
+<p class="muted">Pontuação dos novos códigos CBHPM da Cirurgia Plástica pela sistemática de portes da AMB. Escolha a rodada para pontuar (ou revisar as notas já salvas — um novo Salvar substitui a nota anterior); abaixo, a lista dos procedimentos já pontuados até o momento.</p>
 <div class="card"><h2 style="margin-top:0">Rodadas</h2><div id="rodadas"></div></div>
 <div class="card"><h2 style="margin-top:0">Procedimentos já pontuados</h2>
 <p class="muted small">Resultado consolidado das respostas recebidas (mediana dos pontos; porte, auxiliares, porte anestésico e custo operacional mais frequentes). Atualiza automaticamente a cada envio.</p>
@@ -25,13 +25,13 @@ td.num{text-align:center}.pill{display:inline-block;padding:1px 8px;border-radiu
 </div>
 <script>
 const SB_URL="https://tlaarwlszyjygxatndko.supabase.co", SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRsYWFyd2xzenlqeWd4YXRuZGtvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0MTMyODEsImV4cCI6MjA4Njk4OTI4MX0.nRJzmgPXUlQBLLJGwgBonzHnOqeGoV-B6AWaS5FhcSI";
-const RODADAS=[{"titulo": "Lote 1 — rodada piloto (3 procedimentos)", "descricao": "Aspiração de tecido adiposo patológico · Lesão de coto de amputação · Curativo complexo pós-operatório", "prazo": "30/09/2026", "aberta": false, "url": "sbcp-2026-09/"}, {"titulo": "Lote 1 — validação (42 propostas)", "descricao": "Propostas 1 a 42 da aba Lote 1 · revisora: Dra. Katia Torres · salvar a cada proposta", "prazo": "", "aberta": false, "url": "sbcp-2026-09-lote1/", "lote": "sbcp-2026-09-lote1", "total": 42}, {"titulo": "Lote 2 — validação (85 propostas)", "descricao": "Propostas 43 a 127 da aba Lote 2 · revisora: Dra. Katia Torres · salvar a cada proposta", "prazo": "", "aberta": true, "url": "sbcp-2026-09-lote2/", "lote": "sbcp-2026-09-lote2", "total": 85}, {"titulo": "Lote 3 — validação (67 propostas)", "descricao": "Propostas 128 a 194 da aba Lote 3 · revisora: Dra. Katia Torres · salvar a cada proposta", "prazo": "", "aberta": true, "url": "sbcp-2026-09-lote3/", "lote": "sbcp-2026-09-lote3", "total": 67}, {"titulo": "Lote 4 — validação (36 propostas)", "descricao": "Propostas 195 a 230 da aba Lote 4 · revisora: Dra. Katia Torres · salvar a cada proposta", "prazo": "", "aberta": true, "url": "sbcp-2026-09-lote4/", "lote": "sbcp-2026-09-lote4", "total": 36}];
-// Rodada encerra quando marcada aberta:false ou quando todas as propostas do lote já têm pontuação na view.
+const RODADAS=[{"titulo": "Lote 1 — rodada piloto (3 procedimentos)", "descricao": "Aspiração de tecido adiposo patológico · Lesão de coto de amputação · Curativo complexo pós-operatório", "prazo": "30/09/2026", "aberta": false, "url": "sbcp-2026-09/"}, {"titulo": "Lote 1 — validação (42 propostas)", "descricao": "Propostas 1 a 42 da aba Lote 1 · revisora: Dra. Katia Torres · salvar a cada proposta", "prazo": "", "aberta": true, "url": "sbcp-2026-09-lote1/", "lote": "sbcp-2026-09-lote1", "total": 42}, {"titulo": "Lote 2 — validação (85 propostas)", "descricao": "Propostas 43 a 127 da aba Lote 2 · revisora: Dra. Katia Torres · salvar a cada proposta", "prazo": "", "aberta": true, "url": "sbcp-2026-09-lote2/", "lote": "sbcp-2026-09-lote2", "total": 85}, {"titulo": "Lote 3 — validação (67 propostas)", "descricao": "Propostas 128 a 194 da aba Lote 3 · revisora: Dra. Katia Torres · salvar a cada proposta", "prazo": "", "aberta": true, "url": "sbcp-2026-09-lote3/", "lote": "sbcp-2026-09-lote3", "total": 67}, {"titulo": "Lote 4 — validação (36 propostas)", "descricao": "Propostas 195 a 230 da aba Lote 4 · revisora: Dra. Katia Torres · salvar a cada proposta", "prazo": "", "aberta": true, "url": "sbcp-2026-09-lote4/", "lote": "sbcp-2026-09-lote4", "total": 36}];
+// Rodada encerra só quando marcada aberta:false; lote com todas as propostas pontuadas mostra "Revisar" (novo Salvar substitui a nota anterior).
 function rodadas(pontuadas){ const r=document.getElementById('rodadas'); r.innerHTML='';
-RODADAS.forEach(x=>{ const n=(x.lote&&pontuadas)?(pontuadas[x.lote]||0):0, fim=!x.aberta||(x.total&&n>=x.total);
-  const prog=(x.total&&!fim&&n)?' · '+n+' de '+x.total+' pontuadas':'';
+RODADAS.forEach(x=>{ const n=(x.lote&&pontuadas)?(pontuadas[x.lote]||0):0, fim=!x.aberta, completa=!!(x.total&&n>=x.total);
+  const prog=(x.total&&!fim&&n)?' · '+(completa?'todas as '+x.total+' pontuadas':n+' de '+x.total+' pontuadas'):'';
   const d=document.createElement('div'); d.className='rodada';
-  d.innerHTML='<div><strong>'+x.titulo+'</strong><div class="muted">'+x.descricao+(x.prazo?' · prazo '+x.prazo:'')+prog+'</div></div>'+(fim?'<span class="pill">encerrada</span>':'<a class="btn" href="'+x.url+'">Pontuar</a>'); r.appendChild(d); }); }
+  d.innerHTML='<div><strong>'+x.titulo+'</strong><div class="muted">'+x.descricao+(x.prazo?' · prazo '+x.prazo:'')+prog+'</div></div>'+(fim?'<span class="pill">encerrada</span>':'<a class="btn" href="'+x.url+'">'+(completa?'Revisar':'Pontuar')+'</a>'); r.appendChild(d); }); }
 rodadas(null);
 async function carregar(){
   try{
